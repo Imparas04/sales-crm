@@ -7,9 +7,22 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="login-box">
+    <div class="auth-box">
         <h2>SalesAI CRM</h2>
-        <p>Day 1 placeholder page - real login form comes on Day 7</p>
+        <h3>Login</h3>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="msg">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+        <p>New here? <a href="{% url 'register' %}">Create an account</a></p>
     </div>
 </body>
 </html>

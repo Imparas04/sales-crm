@@ -5,26 +5,23 @@
 - Friend: Frontend (HTML/CSS/JS, Dashboard UI) — not started yet, friend on leave
 
 ## Day 1 — Project Setup ✅
-- Django project + core app created
-- settings.py: env vars via python-dotenv, MySQL via PyMySQL
-- MySQL root password reset (MySQL80 service), sales_crm DB created
-- Verified: migrate + runserver working, /ping-db/ confirms DB connection
+- Django project + core app, MySQL via PyMySQL, .env config
+- MySQL root password reset, sales_crm DB created, verified working
 
 ## Day 3 — Database Schema (models.py) ✅
-11 models created in core/models.py:
-- UserProfile (extends Django User; role = admin/manager/sales_executive)
-- Customer
-- Lead (includes ai_score + ai_recommendation fields for Day 25 AI feature)
-- FollowUp (linked to customer or lead)
-- Product
-- Quotation + QuotationItem (with subtotal/total calculation incl. discount + GST)
-- Sale + SaleItem (same calculation logic, invoice-based)
-- Notification
-- AILog (stores every AI feature call for audit/history)
-All registered in core/admin.py with list_display/filters/search — usable via Django admin panel immediately.
-Validated: `makemigrations --dry-run` runs clean, no field/relation errors.
+- 11 models: UserProfile, Customer, Lead, FollowUp, Product, Quotation+Items, Sale+Items, Notification, AILog
+- Registered in Django admin with list_display/filters/search
 
-## Day 4 — (next)
-- Run actual `python manage.py makemigrations` + `migrate` on your MySQL DB
-- Create a superuser, explore Django admin panel with the new models
-- ER diagram from these relationships (for the SRS/documentation deliverable)
+## Day 5-6 — Authentication ✅
+- core/forms.py: RegisterForm (validates password match, unique username/email), LoginForm
+- core/views.py: register_view, login_view, logout_view, dashboard_view
+  - Password hashing handled automatically by Django's User.objects.create_user() (PBKDF2)
+  - Session management handled automatically by Django's login()/logout() (session cookie + DB-backed sessions)
+  - Already-logged-in users get redirected away from login/register pages
+- core/decorators.py: role_required() decorator for restricting views by role (admin/manager/sales_executive) — not wired into any view yet, ready for Day 8 (user roles)
+- templates/login.html, register.html, dashboard.html — functional but plain, friend will style
+- Tested end-to-end (register -> login -> access dashboard -> logout, plus wrong password and duplicate username rejected correctly) against an in-memory test DB — all passed
+
+## Day 8 — (next)
+- Wire role_required() into views that need role restriction
+- Decide which pages Admin/Manager/Sales Executive each see differently

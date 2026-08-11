@@ -87,6 +87,11 @@ DATABASES = {
 # AI API key (used later for Lead Scoring, AI Follow-up Generator, etc.)
 AI_API_KEY = os.environ.get('AI_API_KEY', '')
 
+# Auth redirects
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators

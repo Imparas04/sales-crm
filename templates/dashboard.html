@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SalesAI CRM - Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="dashboard-box">
+        <h2>Welcome, {{ request.user.username }}</h2>
+        <p>Role: {{ profile.role }}</p>
+        <p>Day 5-6 placeholder — real KPI cards + charts come on Day 22-23</p>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+</body>
+</html>
