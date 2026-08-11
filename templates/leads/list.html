@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leads - SalesAI CRM</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="page-box">
+        <div class="page-header">
+            <h2>Leads</h2>
+            <a href="{% url 'lead_add' %}" class="btn">+ Add Lead</a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}
+        {% endif %}
+
+        <form method="get" class="filter-bar">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search name, phone, email, company">
+            <select name="status">
+                <option value="">All Status</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <select name="priority">
+                <option value="">All Priority</option>
+                <option value="low" {% if priority_filter == "low" %}selected{% endif %}>Low</option>
+                <option value="medium" {% if priority_filter == "medium" %}selected{% endif %}>Medium</option>
+                <option value="high" {% if priority_filter == "high" %}selected{% endif %}>High</option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>Name</th><th>Company</th><th>Status</th><th>Priority</th><th>Budget</th><th>Assigned</th><th>Actions</th>
+            </tr>
+            {% for l in leads %}
+            <tr>
+                <td><a href="{% url 'lead_detail' l.pk %}">{{ l.name }}</a></td>
+                <td>{{ l.company }}</td>
+                <td>{{ l.status }}</td>
+                <td>{{ l.priority }}</td>
+                <td>{{ l.budget|default:"-" }}</td>
+                <td>{{ l.assigned_employee.username|default:"-" }}</td>
+                <td>
+                    <a href="{% url 'lead_edit' l.pk %}">Edit</a> |
+                    <a href="{% url 'lead_delete' l.pk %}">Delete</a> |
+                    <a href="{% url 'lead_convert' l.pk %}">Convert</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No leads found.</td></tr>
+            {% endfor %}
+        </table>
+
+        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
+    </div>
+</body>
+</html>
