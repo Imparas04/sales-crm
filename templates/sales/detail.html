@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>{{ sale.invoice_number }} - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>{{ sale.invoice_number }}</h2>
+        <p><b>Customer:</b> {{ sale.customer.name }}</p>
+        <p><b>Date:</b> {{ sale.sale_date }}</p>
+        <p><b>Payment Status:</b> {{ sale.payment_status }}</p>
+        <p><b>Payment Method:</b> {{ sale.payment_method }}</p>
+        <table>
+            <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+            {% for item in sale.items.all %}
+            <tr><td>{{ item.product.name }}</td><td>{{ item.quantity }}</td><td>₹{{ item.price }}</td><td>₹{{ item.line_total }}</td></tr>
+            {% endfor %}
+        </table>
+        <p><b>Subtotal:</b> ₹{{ sale.subtotal }}</p>
+        <p><b>Discount:</b> {{ sale.discount }}% | <b>GST:</b> {{ sale.gst }}%</p>
+        <p><b>Total:</b> ₹{{ sale.total }}</p>
+        <a href="{% url 'sale_list' %}">&larr; Back to Sales</a>
+    </div>
+</body>
+</html>

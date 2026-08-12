@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products - SalesAI CRM</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="page-box">
+        <div class="page-header">
+            <h2>Products</h2>
+            <a href="{% url 'product_add' %}" class="btn">+ Add Product</a>
+        </div>
+        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
+        <form method="get" class="filter-bar">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search name or category">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="active" {% if status_filter == "active" %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if status_filter == "inactive" %}selected{% endif %}>Inactive</option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+        <table>
+            <tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+            {% for p in products %}
+            <tr>
+                <td>{{ p.name }}</td><td>{{ p.category }}</td><td>₹{{ p.price }}</td>
+                <td>{{ p.stock }}</td><td>{{ p.status }}</td>
+                <td><a href="{% url 'product_edit' p.pk %}">Edit</a> | <a href="{% url 'product_delete' p.pk %}">Delete</a></td>
+            </tr>
+            {% empty %}<tr><td colspan="6">No products found.</td></tr>{% endfor %}
+        </table>
+        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
+    </div>
+</body>
+</html>

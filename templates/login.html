@@ -2,85 +2,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log in · SalesAI CRM</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <title>SalesAI CRM - Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body class="auth-page">
-  <div class="auth-shell">
+<body>
+    <div class="auth-box">
+        <h2>SalesAI CRM</h2>
+        <h3>Login</h3>
 
-    <aside class="auth-visual">
-      <div class="auth-visual__top">
-        <div class="auth-visual__brand">SalesAI CRM</div>
-        <h1 class="auth-visual__headline">Every deal starts here.</h1>
-        <p class="auth-visual__sub">Sign in to pick up your pipeline where you left it.</p>
-      </div>
-
-      <div class="pipeline" aria-hidden="true">
-        <div class="pipeline__stage">
-          <span class="pipeline__dot"></span>
-          <span class="pipeline__label">New Lead</span>
-        </div>
-        <div class="pipeline__stage">
-          <span class="pipeline__dot"></span>
-          <span class="pipeline__label">Qualified</span>
-        </div>
-        <div class="pipeline__stage">
-          <span class="pipeline__dot"></span>
-          <span class="pipeline__label">Proposal Sent</span>
-        </div>
-        <div class="pipeline__stage">
-          <span class="pipeline__dot"></span>
-          <span class="pipeline__label">Closed Won</span>
-        </div>
-      </div>
-
-      <p class="auth-visual__foot">AI-assisted lead scoring is coming to your pipeline soon.</p>
-    </aside>
-
-    <main class="auth-form-panel">
-      <div class="auth-form-card">
-        <p class="auth-form-card__eyebrow">Sign in</p>
-        <h2>Welcome back</h2>
-        <p class="auth-form-card__hint">Enter your credentials to access your pipeline.</p>
-
-        {% if form.non_field_errors %}
-          <div class="form-alert">
-            {% for error in form.non_field_errors %}
-              <div>{{ error }}</div>
+        {% if messages %}
+            {% for message in messages %}
+                <p class="msg">{{ message }}</p>
             {% endfor %}
-          </div>
         {% endif %}
 
-        <form method="post" novalidate>
-          {% csrf_token %}
-
-          <div class="field">
-            <label for="{{ form.username.id_for_label }}">Username</label>
-            {{ form.username }}
-            {% if form.username.errors %}
-              <p class="field-error">{{ form.username.errors.0 }}</p>
-            {% endif %}
-          </div>
-
-          <div class="field">
-            <label for="{{ form.password.id_for_label }}">Password</label>
-            {{ form.password }}
-            {% if form.password.errors %}
-              <p class="field-error">{{ form.password.errors.0 }}</p>
-            {% endif %}
-          </div>
-
-          <button type="submit" class="btn-primary">Log in</button>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
         </form>
-
-        <p class="auth-switch">New here? <a href="{% url 'register' %}">Create an account</a></p>
-      </div>
-    </main>
-
-  </div>
+        <p>New here? <a href="{% url 'register' %}">Create an account</a></p>
+    </div>
 </body>
 </html>

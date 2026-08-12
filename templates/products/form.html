@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>{{ title }} - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>{{ title }}</h2>
+        <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="btn">Save</button></form>
+        <a href="{% url 'product_list' %}">&larr; Back to Products</a>
+    </div>
+</body>
+</html>

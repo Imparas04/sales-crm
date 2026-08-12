@@ -1,21 +1,28 @@
 # PROJECT STATUS — SalesAI CRM (Django)
 
 ## Team
-- Paras: Backend (Django, MySQL, Auth, Business logic, AI)
-- Friend: Frontend (HTML/CSS/JS, Dashboard UI) — not started yet
+- Paras: Backend | Friend: Frontend (has repo access, frontend-dev branch merged once already)
 
-## Day 1 — Setup ✅ | Day 3 — Schema (11 models) ✅ | Day 5-6 — Auth ✅
+## Day 1 Setup ✅ | Day 3 Schema ✅ | Day 5-6 Auth ✅ | Day 8-14 Customer+Lead CRUD ✅ | Day 12-13 Follow-up+Product ✅
 
-## Day 8-14 — Customer + Lead CRUD ✅
-- core/forms.py: added CustomerForm, LeadForm (ModelForm-based)
-- core/views_customer.py: list (with search q= + filter status=), add, edit, delete, detail
-- core/views_lead.py: list (search + filter status/priority), add, edit, delete, detail,
-  + lead_convert_to_customer (Lead -> Customer flow per the PDF's business flow diagram; marks lead as "won")
-- templates/customers/ and templates/leads/: list, form, detail, confirm_delete (+ confirm_convert for leads)
-- Dashboard now links to Customers and Leads
-- Tested end-to-end (add/edit/delete/search/filter/convert, all against an in-memory test DB) — all passed
+## Day 20-21 — Quotation + Sales module ✅
+- core/forms.py: QuotationForm + QuotationItemFormSet (inline formset, multi-line-item quotations),
+  SaleForm + SaleItemFormSet
+- core/views_quotation.py:
+  - list (status filter), add/edit (formset-based multi-item), delete, detail
+  - quotation_pdf: generates a real downloadable PDF invoice using reportlab (Extra Feature from spec)
+- core/views_sale.py:
+  - list, add (manual entry with auto-generated invoice number INV-XXXXXXXX)
+  - sale_from_quotation: Quotation -> Accepted -> Sale flow exactly matching the PDF's business
+    flow diagram — copies all line items across, marks quotation as accepted
+- templates/quotations/ and templates/sales/ (list, form w/ formset table, detail, delete confirm,
+  quotation-to-sale confirm)
+- Dashboard links updated
 
-## Day 15-21 — (next, this is frontend-heavy — good place to loop friend back in)
-- Follow-up module (Day 12 in original plan — pull forward or keep sequence, your call)
-- Product module
-- Proper HTML/CSS layout + dashboard KPIs (friend's territory)
+Tested end-to-end: multi-item quotation creation via formset, subtotal/discount/GST math verified
+against manual calculation, PDF generation confirmed (valid PDF bytes returned), quotation-to-sale
+conversion confirmed (line items copied correctly, totals match, quotation marked accepted).
+
+requirements.txt: added reportlab==4.2.2 (for PDF generation)
+
+## Day 22-27 — (next: Dashboard KPIs/charts + AI features - the big differentiator module)
