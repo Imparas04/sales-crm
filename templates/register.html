@@ -2,32 +2,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SalesAI CRM - Register</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create account · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
-    <div class="auth-box">
-        <h2>SalesAI CRM</h2>
-        <h3>Create Account</h3>
+<body class="auth-page">
+  <div class="auth-shell">
 
-        {% if form.errors %}
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p class="msg">{{ error }}</p>
-                {% endfor %}
-            {% endfor %}
+    <aside class="auth-visual">
+      <div class="auth-visual__top">
+        <div class="auth-visual__brand">SalesAI CRM</div>
+        <h1 class="auth-visual__headline">Build your pipeline.</h1>
+        <p class="auth-visual__sub">Create an account to start tracking leads and customers in one place.</p>
+      </div>
+
+      <div class="pipeline" aria-hidden="true">
+        <div class="pipeline__stage">
+          <span class="pipeline__dot"></span>
+          <span class="pipeline__label">New Lead</span>
+        </div>
+        <div class="pipeline__stage">
+          <span class="pipeline__dot"></span>
+          <span class="pipeline__label">Qualified</span>
+        </div>
+        <div class="pipeline__stage">
+          <span class="pipeline__dot"></span>
+          <span class="pipeline__label">Proposal Sent</span>
+        </div>
+        <div class="pipeline__stage">
+          <span class="pipeline__dot"></span>
+          <span class="pipeline__label">Closed Won</span>
+        </div>
+      </div>
+
+      <p class="auth-visual__foot">AI-assisted lead scoring is coming to your pipeline soon.</p>
+    </aside>
+
+    <main class="auth-form-panel">
+      <div class="auth-form-card">
+        <p class="auth-form-card__eyebrow">Get started</p>
+        <h2>Create your account</h2>
+        <p class="auth-form-card__hint">Set up access to your team's pipeline.</p>
+
+        {% if form.non_field_errors %}
+          <div class="form-alert">
             {% for error in form.non_field_errors %}
-                <p class="msg">{{ error }}</p>
+              <div>{{ error }}</div>
             {% endfor %}
+          </div>
         {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Register</button>
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <div class="field">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <p class="field-error">{{ form.username.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <p class="field-error">{{ form.email.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.phone.id_for_label }}">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+              <p class="field-error">{{ form.phone.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field">
+            <label for="{{ form.role.id_for_label }}">Role</label>
+            {{ form.role }}
+            {% if form.role.errors %}
+              <p class="field-error">{{ form.role.errors.0 }}</p>
+            {% endif %}
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="{{ form.password.id_for_label }}">Password</label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <p class="field-error">{{ form.password.errors.0 }}</p>
+              {% endif %}
+            </div>
+
+            <div class="field">
+              <label for="{{ form.confirm_password.id_for_label }}">Confirm password</label>
+              {{ form.confirm_password }}
+              {% if form.confirm_password.errors %}
+                <p class="field-error">{{ form.confirm_password.errors.0 }}</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Create account</button>
         </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
-    </div>
+
+        <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

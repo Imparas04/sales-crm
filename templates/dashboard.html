@@ -2,20 +2,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SalesAI CRM - Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="dashboard-box">
-        <h2>Welcome, {{ request.user.username }}</h2>
-        <p>Role: {{ profile.role }}</p>
-        <p>Day 22-23 par asli KPI cards + charts aayenge</p>
-        <p>
-            <a href="{% url 'customer_list' %}">Customers</a> |
-            <a href="{% url 'lead_list' %}">Leads</a>
-        </p>
-        <a href="{% url 'logout' %}">Logout</a>
-    </div>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link app-nav__link--active" href="{% url 'dashboard' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
+            Dashboard
+          </a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            Customers
+          </a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
+            Leads
+          </a>
+        </nav>
+      </div>
+
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">
+            Log out
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Welcome back, {{ request.user.username }}</h1>
+          <p class="app-header__sub">Here's a quick way into your pipeline.</p>
+        </div>
+        {% if profile.role %}
+          <span class="role-badge">{{ profile.role }}</span>
+        {% endif %}
+      </div>
+
+      <div class="quick-actions">
+        <a class="quick-card" href="{% url 'customer_list' %}">
+          <p class="quick-card__eyebrow">Customers</p>
+          <h3>View customers</h3>
+          <p>Browse, search, and manage your customer records.</p>
+        </a>
+
+        <a class="quick-card" href="{% url 'customer_add' %}">
+          <p class="quick-card__eyebrow">Customers</p>
+          <h3>Add a customer</h3>
+          <p>Create a new customer record.</p>
+        </a>
+
+        <a class="quick-card" href="{% url 'lead_list' %}">
+          <p class="quick-card__eyebrow">Leads</p>
+          <h3>View leads</h3>
+          <p>Track leads through your pipeline stages.</p>
+        </a>
+
+        <a class="quick-card" href="{% url 'lead_add' %}">
+          <p class="quick-card__eyebrow">Leads</p>
+          <h3>Add a lead</h3>
+          <p>Log a new lead to start working it.</p>
+        </a>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>
