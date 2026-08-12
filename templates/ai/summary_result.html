@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>AI Customer Summary - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>AI Customer Summary</h2>
+        <p>For: <b>{{ customer.name }}</b></p>
+        {% if error %}<p class="msg">{{ error }}</p>{% endif %}
+        {% if result %}
+            <p><b>Summary:</b> {{ result.summary }}</p>
+            <p><b>Purchase Probability:</b> {{ result.purchase_probability }}%</p>
+            <p><b>Recommended Action:</b> {{ result.recommended_action }}</p>
+        {% else %}
+            <form method="post">{% csrf_token %}<button type="submit" class="btn">Generate AI Summary</button></form>
+        {% endif %}
+        <a href="{% url 'customer_detail' customer.pk %}">&larr; Back to Customer</a>
+    </div>
+</body>
+</html>

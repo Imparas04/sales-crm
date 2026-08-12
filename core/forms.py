@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import UserProfile, Customer, Lead
+from .models import UserProfile, Customer, Lead, Product, FollowUp, Quotation, QuotationItem, Sale, SaleItem
 
 
 class RegisterForm(forms.Form):
@@ -61,3 +61,69 @@ class LeadForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={"rows": 3}),
             "expected_closing_date": forms.DateInput(attrs={"type": "date"}),
         }
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ["name", "category", "price", "stock", "description", "status"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+class FollowUpForm(forms.ModelForm):
+    class Meta:
+        model = FollowUp
+        fields = [
+            "customer", "lead", "date", "time", "type",
+            "notes", "status", "assigned_employee",
+        ]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "time": forms.TimeInput(attrs={"type": "time"}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        customer = cleaned_data.get("customer")
+        lead = cleaned_data.get("lead")
+        if not customer and not lead:
+            raise forms.ValidationError("Select either a Customer or a Lead for this follow-up.")
+        if customer and lead:
+            raise forms.ValidationError("Select only one: either a Customer or a Lead, not both.")
+        return cleaned_data
+
+
+class QuotationForm(forms.ModelForm):
+    class Meta:
+        model = Quotation
+        fields = ["customer", "discount", "gst", "status"]
+
+
+QuotationItemFormSet = forms.inlineformset_factory(
+    Quotation,
+    QuotationItem,
+    fields=["product", "quantity", "price"],
+    extra=1,
+    can_delete=True,
+)
+
+
+class SaleForm(forms.ModelForm):
+    class Meta:
+        model = Sale
+        fields = [
+            "invoice_number", "customer", "quotation", "discount", "gst",
+            "payment_status", "payment_method", "sales_employee",
+        ]
+
+
+SaleItemFormSet = forms.inlineformset_factory(
+    Sale,
+    SaleItem,
+    fields=["product", "quantity", "price"],
+    extra=1,
+    can_delete=True,
+)

@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Quotation #{{ quotation.id }} - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>Quotation #{{ quotation.id }}</h2>
+        <p><b>Customer:</b> {{ quotation.customer.name }}</p>
+        <p><b>Date:</b> {{ quotation.quotation_date }}</p>
+        <p><b>Status:</b> {{ quotation.status }}</p>
+        <table>
+            <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+            {% for item in quotation.items.all %}
+            <tr><td>{{ item.product.name }}</td><td>{{ item.quantity }}</td><td>₹{{ item.price }}</td><td>₹{{ item.line_total }}</td></tr>
+            {% endfor %}
+        </table>
+        <p><b>Subtotal:</b> ₹{{ quotation.subtotal }}</p>
+        <p><b>Discount:</b> {{ quotation.discount }}% | <b>GST:</b> {{ quotation.gst }}%</p>
+        <p><b>Total:</b> ₹{{ quotation.total }}</p>
+        <a href="{% url 'quotation_edit' quotation.pk %}">Edit</a> |
+        <a href="{% url 'quotation_pdf' quotation.pk %}">Download PDF</a> |
+        <a href="{% url 'sale_from_quotation' quotation.pk %}">Convert to Sale</a> |
+        <a href="{% url 'quotation_list' %}">&larr; Back to Quotations</a>
+    </div>
+</body>
+</html>

@@ -2,127 +2,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title }} · SalesAI CRM</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <title>{{ title }} - SalesAI CRM</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <div class="app-shell">
-
-    <aside class="app-sidebar">
-      <div>
-        <div class="app-sidebar__brand">SalesAI CRM</div>
-        <nav class="app-nav">
-          <a class="app-nav__link" href="{% url 'dashboard' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
-            Dashboard
-          </a>
-          <a class="app-nav__link app-nav__link--active" href="{% url 'customer_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-            Customers
-          </a>
-          <a class="app-nav__link" href="{% url 'lead_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
-            Leads
-          </a>
-        </nav>
-      </div>
-
-      <div class="app-sidebar__foot">
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="app-sidebar__logout">Log out</button>
+    <div class="page-box">
+        <h2>{{ title }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Save</button>
         </form>
-      </div>
-    </aside>
-
-    <main class="app-main">
-      <div class="app-header">
-        <div>
-          <h1>{{ title }}</h1>
-          <p class="app-header__sub">Fields marked required must be filled before saving.</p>
-        </div>
-      </div>
-
-      <div class="form-page-card">
-        {% if form.non_field_errors %}
-          <div class="form-alert">
-            {% for error in form.non_field_errors %}
-              <div>{{ error }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-          {% csrf_token %}
-
-          <div class="form-grid">
-            <div class="field field--full">
-              <label for="{{ form.name.id_for_label }}">Name</label>
-              {{ form.name }}
-              {% if form.name.errors %}<p class="field-error">{{ form.name.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.email.id_for_label }}">Email</label>
-              {{ form.email }}
-              {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.phone.id_for_label }}">Phone</label>
-              {{ form.phone }}
-              {% if form.phone.errors %}<p class="field-error">{{ form.phone.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.company.id_for_label }}">Company</label>
-              {{ form.company }}
-              {% if form.company.errors %}<p class="field-error">{{ form.company.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.industry.id_for_label }}">Industry</label>
-              {{ form.industry }}
-              {% if form.industry.errors %}<p class="field-error">{{ form.industry.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field field--full">
-              <label for="{{ form.address.id_for_label }}">Address</label>
-              {{ form.address }}
-              {% if form.address.errors %}<p class="field-error">{{ form.address.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.city.id_for_label }}">City</label>
-              {{ form.city }}
-              {% if form.city.errors %}<p class="field-error">{{ form.city.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field">
-              <label for="{{ form.status.id_for_label }}">Status</label>
-              {{ form.status }}
-              {% if form.status.errors %}<p class="field-error">{{ form.status.errors.0 }}</p>{% endif %}
-            </div>
-
-            <div class="field field--full">
-              <label for="{{ form.assigned_employee.id_for_label }}">Assigned employee</label>
-              {{ form.assigned_employee }}
-              {% if form.assigned_employee.errors %}<p class="field-error">{{ form.assigned_employee.errors.0 }}</p>{% endif %}
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn-add">Save customer</button>
-            <a href="{% url 'customer_list' %}" class="btn-secondary">Cancel</a>
-          </div>
-        </form>
-      </div>
-    </main>
-
-  </div>
+        <a href="{% url 'customer_list' %}">&larr; Back to Customers</a>
+    </div>
 </body>
 </html>

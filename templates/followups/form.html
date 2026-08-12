@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>{{ title }} - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>{{ title }}</h2>
+        {% if form.non_field_errors %}{% for e in form.non_field_errors %}<p class="msg">{{ e }}</p>{% endfor %}{% endif %}
+        <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="btn">Save</button></form>
+        <a href="{% url 'followup_list' %}">&larr; Back to Follow-ups</a>
+    </div>
+</body>
+</html>

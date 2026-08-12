@@ -26,6 +26,8 @@
         {% endif %}
         <a href="{% url 'lead_edit' lead.pk %}">Edit</a> |
         <a href="{% url 'lead_convert' lead.pk %}">Convert to Customer</a> |
+        <a href="{% url 'ai_score_lead' lead.pk %}">AI Score This Lead</a> |
+        <a href="{% url 'ai_followup_lead' lead.pk %}">AI Follow-up Message</a> |
         <a href="{% url 'lead_list' %}">&larr; Back to Leads</a>
     </div>
 </body>

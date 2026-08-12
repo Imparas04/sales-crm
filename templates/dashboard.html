@@ -2,83 +2,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard · SalesAI CRM</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8">
+    <title>Dashboard - SalesAI CRM</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-
-    <aside class="app-sidebar">
-      <div>
-        <div class="app-sidebar__brand">SalesAI CRM</div>
-        <nav class="app-nav">
-          <a class="app-nav__link app-nav__link--active" href="{% url 'dashboard' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
-            Dashboard
-          </a>
-          <a class="app-nav__link" href="{% url 'customer_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-            Customers
-          </a>
-          <a class="app-nav__link" href="{% url 'lead_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
-            Leads
-          </a>
-        </nav>
-      </div>
-
-      <div class="app-sidebar__foot">
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit" class="app-sidebar__logout">
-            Log out
-          </button>
-        </form>
-      </div>
-    </aside>
-
-    <main class="app-main">
-      <div class="app-header">
-        <div>
-          <h1>Welcome back, {{ request.user.username }}</h1>
-          <p class="app-header__sub">Here's a quick way into your pipeline.</p>
+    <div class="page-box" style="max-width: 1000px;">
+        <div class="page-header">
+            <h2>Welcome, {{ request.user.username }}</h2>
+            <a href="{% url 'logout' %}">Logout</a>
         </div>
-        {% if profile.role %}
-          <span class="role-badge">{{ profile.role }}</span>
-        {% endif %}
-      </div>
+        <p>Role: {{ profile.role }}</p>
 
-      <div class="quick-actions">
-        <a class="quick-card" href="{% url 'customer_list' %}">
-          <p class="quick-card__eyebrow">Customers</p>
-          <h3>View customers</h3>
-          <p>Browse, search, and manage your customer records.</p>
-        </a>
+        <p>
+            <a href="{% url 'customer_list' %}">Customers</a> |
+            <a href="{% url 'lead_list' %}">Leads</a> |
+            <a href="{% url 'product_list' %}">Products</a> |
+            <a href="{% url 'followup_dashboard' %}">Follow-ups</a> |
+            <a href="{% url 'quotation_list' %}">Quotations</a> |
+            <a href="{% url 'sale_list' %}">Sales</a> |
+            <a href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+        </p>
 
-        <a class="quick-card" href="{% url 'customer_add' %}">
-          <p class="quick-card__eyebrow">Customers</p>
-          <h3>Add a customer</h3>
-          <p>Create a new customer record.</p>
-        </a>
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="card"><h3>Total Customers</h3><h2>{{ total_customers }}</h2></div>
+            <div class="card"><h3>Total Leads</h3><h2>{{ total_leads }}</h2></div>
+            <div class="card"><h3>Total Sales</h3><h2>{{ total_sales }}</h2></div>
+            <div class="card"><h3>Monthly Revenue</h3><h2>₹{{ monthly_revenue }}</h2></div>
+            <div class="card"><h3>Conversion Rate</h3><h2>{{ conversion_rate }}%</h2></div>
+            <div class="card"><h3>Pending Follow-ups</h3><h2>{{ pending_followups }}</h2></div>
+        </div>
 
-        <a class="quick-card" href="{% url 'lead_list' %}">
-          <p class="quick-card__eyebrow">Leads</p>
-          <h3>View leads</h3>
-          <p>Track leads through your pipeline stages.</p>
-        </a>
+        <!-- Charts -->
+        <div class="chart-grid">
+            <div>
+                <h3>Lead Status</h3>
+                <canvas id="leadStatusChart"></canvas>
+            </div>
+            <div>
+                <h3>Top Products by Revenue</h3>
+                <canvas id="productChart"></canvas>
+            </div>
+        </div>
+    </div>
 
-        <a class="quick-card" href="{% url 'lead_add' %}">
-          <p class="quick-card__eyebrow">Leads</p>
-          <h3>Add a lead</h3>
-          <p>Log a new lead to start working it.</p>
-        </a>
-      </div>
-    </main>
+    <script>
+        const leadStatusLabels = {{ lead_status_labels|safe }};
+        const leadStatusCounts = {{ lead_status_counts|safe }};
+        new Chart(document.getElementById('leadStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: leadStatusLabels,
+                datasets: [{ data: leadStatusCounts, backgroundColor: ['#2563eb','#16a34a','#f59e0b','#dc2626','#8b5cf6','#06b6d4','#64748b'] }]
+            }
+        });
 
-  </div>
+        const productLabels = {{ product_labels|safe }};
+        const productValues = {{ product_values|safe }};
+        new Chart(document.getElementById('productChart'), {
+            type: 'bar',
+            data: {
+                labels: productLabels,
+                datasets: [{ label: 'Revenue (₹)', data: productValues, backgroundColor: '#2563eb' }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
 </body>
 </html>

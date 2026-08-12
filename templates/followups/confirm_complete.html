@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Complete Follow-up - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>Mark as Completed</h2>
+        <p>Mark this follow-up ({{ followup.date }} - {{ followup.type }}) as completed?</p>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn">Yes, Mark Complete</button></form>
+        <a href="{% url 'followup_dashboard' %}">Cancel</a>
+    </div>
+</body>
+</html>

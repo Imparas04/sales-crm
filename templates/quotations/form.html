@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>{{ title }} - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>{{ title }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <h3>Items</h3>
+            {{ formset.management_form }}
+            <table>
+                <tr><th>Product</th><th>Quantity</th><th>Price</th><th>Delete</th></tr>
+                {% for item_form in formset %}
+                <tr>
+                    <td>{{ item_form.product }}</td>
+                    <td>{{ item_form.quantity }}</td>
+                    <td>{{ item_form.price }}</td>
+                    <td>{% if item_form.instance.pk %}{{ item_form.DELETE }}{% endif %}</td>
+                    {{ item_form.id }}
+                </tr>
+                {% endfor %}
+            </table>
+            <button type="submit" class="btn">Save Quotation</button>
+        </form>
+        <a href="{% url 'quotation_list' %}">&larr; Back to Quotations</a>
+    </div>
+</body>
+</html>
