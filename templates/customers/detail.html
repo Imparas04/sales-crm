@@ -2,23 +2,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ customer.name }} - SalesAI CRM</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ customer.name }} · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="page-box">
-        <h2>{{ customer.name }}</h2>
-        <p><b>Phone:</b> {{ customer.phone }}</p>
-        <p><b>Email:</b> {{ customer.email|default:"-" }}</p>
-        <p><b>Company:</b> {{ customer.company|default:"-" }}</p>
-        <p><b>Address:</b> {{ customer.address|default:"-" }}</p>
-        <p><b>City:</b> {{ customer.city|default:"-" }}</p>
-        <p><b>Industry:</b> {{ customer.industry|default:"-" }}</p>
-        <p><b>Status:</b> {{ customer.status }}</p>
-        <p><b>Assigned to:</b> {{ customer.assigned_employee.username|default:"-" }}</p>
-        <a href="{% url 'customer_edit' customer.pk %}">Edit</a> |
-        <a href="{% url 'customer_list' %}">&larr; Back to Customers</a>
-    </div>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
+            Dashboard
+          </a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'customer_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            Customers
+          </a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
+            Leads
+          </a>
+        </nav>
+      </div>
+
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Customer</h1>
+          <p class="app-header__sub"><a href="{% url 'customer_list' %}" style="color:inherit;">&larr; Back to customers</a></p>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card__header">
+          <div>
+            <p class="detail-card__eyebrow">Customer</p>
+            <h2>{{ customer.name }}</h2>
+          </div>
+          <span class="status-pill status-pill--{{ customer.status }}">{{ customer.status }}</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-field">
+            <label>Email</label>
+            <div class="detail-field__value">{{ customer.email|default:"—" }}</div>
+          </div>
+          <div class="detail-field">
+            <label>Phone</label>
+            <div class="detail-field__value">{{ customer.phone|default:"—" }}</div>
+          </div>
+          <div class="detail-field">
+            <label>Company</label>
+            <div class="detail-field__value">{{ customer.company|default:"—" }}</div>
+          </div>
+          <div class="detail-field">
+            <label>Industry</label>
+            <div class="detail-field__value">{{ customer.industry|default:"—" }}</div>
+          </div>
+          <div class="detail-field">
+            <label>City</label>
+            <div class="detail-field__value">{{ customer.city|default:"—" }}</div>
+          </div>
+          <div class="detail-field">
+            <label>Assigned employee</label>
+            <div class="detail-field__value">{{ customer.assigned_employee.username|default:"—" }}</div>
+          </div>
+          <div class="detail-field detail-field--full">
+            <label>Address</label>
+            <div class="detail-field__value">{{ customer.address|default:"—" }}</div>
+          </div>
+        </div>
+
+        <div class="detail-card__actions">
+          <a href="{% url 'customer_edit' customer.pk %}" class="btn-add">Edit</a>
+          <a href="{% url 'customer_delete' customer.pk %}" class="btn-danger-outline">Delete</a>
+        </div>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>
