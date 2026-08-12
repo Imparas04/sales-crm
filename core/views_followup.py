@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from .models import FollowUp
 from .forms import FollowUpForm
+from .notifications import notify
 
 
 @login_required(login_url="login")
@@ -49,7 +50,9 @@ def followup_add(request):
     if request.method == "POST":
         form = FollowUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            followup = form.save()
+            if followup.assigned_employee:
+                notify(followup.assigned_employee, f"Follow-up scheduled: {followup.contact_name} on {followup.date}")
             messages.success(request, "Follow-up scheduled successfully.")
             return redirect("followup_list")
     else:

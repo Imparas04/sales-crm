@@ -5,6 +5,7 @@ import uuid
 
 from .models import Sale, Quotation, SaleItem
 from .forms import SaleForm, SaleItemFormSet
+from .notifications import notify
 
 
 @login_required(login_url="login")
@@ -69,6 +70,7 @@ def sale_from_quotation(request, quotation_pk):
                 price=item.price,
             )
         messages.success(request, f"Sale created from quotation: {sale.invoice_number}")
+        notify(request.user, f"Sale recorded: {sale.invoice_number} for {sale.customer.name}")
         return redirect("sale_detail", pk=sale.pk)
 
     return render(request, "sales/confirm_from_quotation.html", {"quotation": quotation})

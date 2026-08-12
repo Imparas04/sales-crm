@@ -78,9 +78,10 @@ def dashboard_view(request):
     import json
     from django.db.models import Sum, Count
     from django.utils import timezone
-    from .models import Customer, Lead, Sale, FollowUp, Product
+    from .models import Customer, Lead, Sale, FollowUp, Product, Notification
 
     profile = getattr(request.user, "profile", None)
+    unread_notifications = Notification.objects.filter(user=request.user, is_read=False).count()
 
     # ---- KPI cards ----
     total_customers = Customer.objects.count()
@@ -114,6 +115,7 @@ def dashboard_view(request):
 
     context = {
         "profile": profile,
+        "unread_notifications": unread_notifications,
         "total_customers": total_customers,
         "total_leads": total_leads,
         "total_sales": total_sales,

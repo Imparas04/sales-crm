@@ -11,7 +11,11 @@
     <div class="page-box" style="max-width: 1000px;">
         <div class="page-header">
             <h2>Welcome, {{ request.user.username }}</h2>
-            <a href="{% url 'logout' %}">Logout</a>
+            <div>
+                <a href="{% url 'notification_list' %}">🔔 Notifications {% if unread_notifications %}({{ unread_notifications }}){% endif %}</a>
+                &nbsp;|&nbsp;
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
         </div>
         <p>Role: {{ profile.role }}</p>
 
@@ -21,8 +25,10 @@
             <a href="{% url 'product_list' %}">Products</a> |
             <a href="{% url 'followup_dashboard' %}">Follow-ups</a> |
             <a href="{% url 'quotation_list' %}">Quotations</a> |
-            <a href="{% url 'sale_list' %}">Sales</a> |
-            <a href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+            <a href="{% url 'sale_list' %}">Sales</a>
+            {% if profile.role == "admin" or profile.role == "manager" %}
+            | <a href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+            {% endif %}
         </p>
 
         <!-- KPI Cards -->

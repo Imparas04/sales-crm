@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_customer, views_lead, views_product, views_followup, views_quotation, views_sale, views_ai
+from . import views, views_customer, views_lead, views_product, views_followup, views_quotation, views_sale, views_ai, views_notification
 
 urlpatterns = [
     # Auth
@@ -59,4 +59,9 @@ urlpatterns = [
     path("leads/<int:pk>/ai-followup/", views_ai.ai_followup_lead, name="ai_followup_lead"),
     path("customers/<int:pk>/ai-summary/", views_ai.ai_customer_summary, name="ai_customer_summary"),
     path("ai-sales-report/", views_ai.ai_sales_report, name="ai_sales_report"),
+
+    # Notifications
+    path("notifications/", views_notification.notification_list, name="notification_list"),
+    path("notifications/<int:pk>/read/", views_notification.notification_mark_read, name="notification_mark_read"),
+    path("notifications/mark-all-read/", views_notification.notification_mark_all_read, name="notification_mark_all_read"),
 ]
