@@ -944,3 +944,60 @@ html, body {
 }
 
 .btn-danger:hover { background: #8f3623; }
+
+.confirm-card--convert .btn-danger {
+  background: var(--color-forest);
+}
+
+.confirm-card--convert .btn-danger:hover {
+  background: #305e46;
+}
+
+/* ==========================================================================
+   AI insight block (leads/detail.html)
+   ========================================================================== */
+
+.ai-card {
+  background: rgba(201, 138, 59, 0.05);
+  border: 1px solid rgba(201, 138, 59, 0.3);
+  border-radius: var(--radius-md);
+  padding: 22px 28px;
+  margin: 0 0 24px;
+}
+
+.ai-card__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-brass-hover);
+  margin: 0 0 12px;
+}
+
+.ai-card__row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ai-card__score {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--color-brass-hover);
+  line-height: 1;
+}
+
+.ai-card__recommendation {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.55;
+  flex: 1;
+  min-width: 200px;
+}
+
+.field textarea {
+  min-height: 90px;
+  resize: vertical;
+}

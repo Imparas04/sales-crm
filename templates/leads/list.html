@@ -2,62 +2,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Leads - SalesAI CRM</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leads · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>Leads</h2>
-            <a href="{% url 'lead_add' %}" class="btn">+ Add Lead</a>
-        </div>
+  <div class="app-shell">
 
-        {% if messages %}
-            {% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}
-        {% endif %}
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
+            Dashboard
+          </a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            Customers
+          </a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'lead_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
+            Leads
+          </a>
+        </nav>
+      </div>
 
-        <form method="get" class="filter-bar">
-            <input type="text" name="q" value="{{ query }}" placeholder="Search name, phone, email, company">
-            <select name="status">
-                <option value="">All Status</option>
-                {% for value, label in status_choices %}
-                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <select name="priority">
-                <option value="">All Priority</option>
-                <option value="low" {% if priority_filter == "low" %}selected{% endif %}>Low</option>
-                <option value="medium" {% if priority_filter == "medium" %}selected{% endif %}>Medium</option>
-                <option value="high" {% if priority_filter == "high" %}selected{% endif %}>High</option>
-            </select>
-            <button type="submit">Filter</button>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
+      </div>
+    </aside>
 
-        <table>
-            <tr>
-                <th>Name</th><th>Company</th><th>Status</th><th>Priority</th><th>Budget</th><th>Assigned</th><th>Actions</th>
-            </tr>
-            {% for l in leads %}
-            <tr>
-                <td><a href="{% url 'lead_detail' l.pk %}">{{ l.name }}</a></td>
-                <td>{{ l.company }}</td>
-                <td>{{ l.status }}</td>
-                <td>{{ l.priority }}</td>
-                <td>{{ l.budget|default:"-" }}</td>
-                <td>{{ l.assigned_employee.username|default:"-" }}</td>
-                <td>
-                    <a href="{% url 'lead_edit' l.pk %}">Edit</a> |
-                    <a href="{% url 'lead_delete' l.pk %}">Delete</a> |
-                    <a href="{% url 'lead_convert' l.pk %}">Convert</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No leads found.</td></tr>
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Leads</h1>
+          <p class="app-header__sub">Everything moving through your pipeline right now.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <form class="filter-form" method="get" action="{% url 'lead_list' %}">
+          <input
+            type="search"
+            name="q"
+            placeholder="Search leads..."
+            value="{{ query|default:'' }}"
+          >
+          <select name="status">
+            <option value="" {% if not status_filter %}selected{% endif %}>All statuses</option>
+            {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
-        </table>
+          </select>
+          <select name="priority">
+            <option value="" {% if not priority_filter %}selected{% endif %}>All priorities</option>
+            <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+            <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
+            <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+          </select>
+          <button type="submit" class="btn-secondary">Filter</button>
+        </form>
+        <a href="{% url 'lead_add' %}" class="btn-add">+ Add lead</a>
+      </div>
 
-        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
-    </div>
+      <div class="table-card">
+        {% if leads %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>AI Score</th>
+                <th>Assigned to</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for l in leads %}
+                <tr>
+                  <td>
+                    <a href="{% url 'lead_detail' l.pk %}" class="cell-primary" style="text-decoration:none; color:inherit;">{{ l.name }}</a>
+                  </td>
+                  <td class="cell-muted">{{ l.company|default:"—" }}</td>
+                  <td class="cell-muted">
+                    {{ l.email }}{% if l.phone %}<br>{{ l.phone }}{% endif %}
+                  </td>
+                  <td>
+                    <span class="status-pill priority-pill--{{ l.priority }}">{{ l.priority }}</span>
+                  </td>
+                  <td class="cell-muted">{{ l.status }}</td>
+                  <td class="cell-muted">{{ l.ai_score|default:"—" }}</td>
+                  <td class="cell-muted">{{ l.assigned_employee.username|default:"—" }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="{% url 'lead_detail' l.pk %}">View</a>
+                      <a href="{% url 'lead_edit' l.pk %}">Edit</a>
+                      <a href="{% url 'lead_convert' l.pk %}">Convert</a>
+                      <a href="{% url 'lead_delete' l.pk %}" class="action-danger">Delete</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <h3>No leads found</h3>
+            <p>Try a different search, or add your first lead.</p>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>
