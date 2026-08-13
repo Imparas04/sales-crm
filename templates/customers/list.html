@@ -2,54 +2,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Customers - SalesAI CRM</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>Customers</h2>
-            <a href="{% url 'customer_add' %}" class="btn">+ Add Customer</a>
-        </div>
+  <div class="app-shell">
 
-        {% if messages %}
-            {% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}
-        {% endif %}
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
+            Dashboard
+          </a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'customer_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            Customers
+          </a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
+            Leads
+          </a>
+        </nav>
+      </div>
 
-        <form method="get" class="filter-bar">
-            <input type="text" name="q" value="{{ query }}" placeholder="Search name, phone, email, company">
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="active" {% if status_filter == "active" %}selected{% endif %}>Active</option>
-                <option value="inactive" {% if status_filter == "inactive" %}selected{% endif %}>Inactive</option>
-            </select>
-            <button type="submit">Filter</button>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
+      </div>
+    </aside>
 
-        <table>
-            <tr>
-                <th>Name</th><th>Phone</th><th>Company</th><th>City</th><th>Status</th><th>Assigned</th><th>Actions</th>
-            </tr>
-            {% for c in customers %}
-            <tr>
-                <td><a href="{% url 'customer_detail' c.pk %}">{{ c.name }}</a></td>
-                <td>{{ c.phone }}</td>
-                <td>{{ c.company }}</td>
-                <td>{{ c.city }}</td>
-                <td>{{ c.status }}</td>
-                <td>{{ c.assigned_employee.username|default:"-" }}</td>
-                <td>
-                    <a href="{% url 'customer_edit' c.pk %}">Edit</a> |
-                    <a href="{% url 'customer_delete' c.pk %}">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7">No customers found.</td></tr>
-            {% endfor %}
-        </table>
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Customers</h1>
+          <p class="app-header__sub">Everyone your team has closed or is working with.</p>
+        </div>
+      </div>
 
-        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
-    </div>
+      <div class="toolbar">
+        <form class="filter-form" method="get" action="{% url 'customer_list' %}">
+          <input
+            type="search"
+            name="q"
+            placeholder="Search customers..."
+            value="{{ query|default:'' }}"
+          >
+          <select name="status">
+            <option value="" {% if not status_filter %}selected{% endif %}>All statuses</option>
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+          </select>
+          <button type="submit" class="btn-secondary">Filter</button>
+        </form>
+        <a href="{% url 'customer_add' %}" class="btn-add">+ Add customer</a>
+      </div>
+
+      <div class="table-card">
+        {% if customers %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>City</th>
+                <th>Industry</th>
+                <th>Status</th>
+                <th>Assigned to</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in customers %}
+                <tr>
+                  <td>
+                    <a href="{% url 'customer_detail' c.pk %}" class="cell-primary" style="text-decoration:none; color:inherit;">{{ c.name }}</a>
+                  </td>
+                  <td class="cell-muted">{{ c.company|default:"—" }}</td>
+                  <td class="cell-muted">
+                    {{ c.email }}{% if c.phone %}<br>{{ c.phone }}{% endif %}
+                  </td>
+                  <td class="cell-muted">{{ c.city|default:"—" }}</td>
+                  <td class="cell-muted">{{ c.industry|default:"—" }}</td>
+                  <td>
+                    <span class="status-pill status-pill--{{ c.status }}">{{ c.status }}</span>
+                  </td>
+                  <td class="cell-muted">{{ c.assigned_employee.username|default:"—" }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="{% url 'customer_detail' c.pk %}">View</a>
+                      <a href="{% url 'customer_edit' c.pk %}">Edit</a>
+                      <a href="{% url 'customer_delete' c.pk %}" class="action-danger">Delete</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <h3>No customers found</h3>
+            <p>Try a different search, or add your first customer.</p>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

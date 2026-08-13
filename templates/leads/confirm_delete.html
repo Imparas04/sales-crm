@@ -2,19 +2,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Delete Lead - SalesAI CRM</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete {{ lead.name }} · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <div class="page-box">
-        <h2>Delete Lead</h2>
-        <p>Are you sure you want to delete <b>{{ lead.name }}</b>? This cannot be undone.</p>
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
+            Dashboard
+          </a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            Customers
+          </a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'lead_list' %}">
+            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
+            Leads
+          </a>
+        </nav>
+      </div>
+
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
-        <a href="{% url 'lead_list' %}">Cancel</a>
-    </div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="confirm-card">
+        <p class="confirm-card__eyebrow">Delete lead</p>
+        <h2>Delete {{ lead.name }}?</h2>
+        <p>This will permanently remove <strong>{{ lead.name }}</strong> from your leads. This action can't be undone.</p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="confirm-card__actions">
+            <button type="submit" class="btn-danger">Yes, delete</button>
+            <a href="{% url 'lead_detail' lead.pk %}" class="btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>
