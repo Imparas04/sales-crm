@@ -5,11 +5,25 @@ from django.db.models import Q
 
 from .models import Lead, Customer
 from .forms import LeadForm
+from .notifications import notify
+
+
+def _can_access_lead(request, lead):
+    """Admin/Manager can access any lead. Sales Executive only their assigned leads."""
+    profile = getattr(request.user, "profile", None)
+    if profile and profile.role == "sales_executive":
+        return lead.assigned_employee_id == request.user.id
+    return True
 
 
 @login_required(login_url="login")
 def lead_list(request):
     leads = Lead.objects.all().order_by("-created_at")
+
+    # Sales executives only see leads assigned to them; Admin/Manager see everything.
+    profile = getattr(request.user, "profile", None)
+    if profile and profile.role == "sales_executive":
+        leads = leads.filter(assigned_employee=request.user)
 
     query = request.GET.get("q", "").strip()
     if query:
@@ -42,7 +56,9 @@ def lead_add(request):
     if request.method == "POST":
         form = LeadForm(request.POST)
         if form.is_valid():
-            form.save()
+            lead = form.save()
+            if lead.assigned_employee:
+                notify(lead.assigned_employee, f"New lead assigned to you: {lead.name}")
             messages.success(request, "Lead added successfully.")
             return redirect("lead_list")
     else:
@@ -53,10 +69,15 @@ def lead_add(request):
 @login_required(login_url="login")
 def lead_edit(request, pk):
     lead = get_object_or_404(Lead, pk=pk)
+    if not _can_access_lead(request, lead):
+        return render(request, "403.html", {}, status=403)
     if request.method == "POST":
+        old_assignee = lead.assigned_employee
         form = LeadForm(request.POST, instance=lead)
         if form.is_valid():
-            form.save()
+            updated_lead = form.save()
+            if updated_lead.assigned_employee and updated_lead.assigned_employee != old_assignee:
+                notify(updated_lead.assigned_employee, f"Lead reassigned to you: {updated_lead.name}")
             messages.success(request, "Lead updated successfully.")
             return redirect("lead_list")
     else:
@@ -67,6 +88,8 @@ def lead_edit(request, pk):
 @login_required(login_url="login")
 def lead_delete(request, pk):
     lead = get_object_or_404(Lead, pk=pk)
+    if not _can_access_lead(request, lead):
+        return render(request, "403.html", {}, status=403)
     if request.method == "POST":
         lead.delete()
         messages.success(request, "Lead deleted.")
@@ -77,6 +100,8 @@ def lead_delete(request, pk):
 @login_required(login_url="login")
 def lead_view(request, pk):
     lead = get_object_or_404(Lead, pk=pk)
+    if not _can_access_lead(request, lead):
+        return render(request, "403.html", {}, status=403)
     return render(request, "leads/detail.html", {"lead": lead})
 
 
@@ -84,6 +109,8 @@ def lead_view(request, pk):
 def lead_convert_to_customer(request, pk):
     """Day 10-11 business flow: Lead -> Customer (matches the PDF's Lead -> Customer step)."""
     lead = get_object_or_404(Lead, pk=pk)
+    if not _can_access_lead(request, lead):
+        return render(request, "403.html", {}, status=403)
     if request.method == "POST":
         customer = Customer.objects.create(
             name=lead.name,

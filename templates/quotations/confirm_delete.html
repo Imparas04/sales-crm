@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Delete Quotation - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>Delete Quotation</h2>
+        <p>Delete quotation #{{ quotation.id }} for {{ quotation.customer.name }}?</p>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-danger">Yes, Delete</button></form>
+        <a href="{% url 'quotation_list' %}">Cancel</a>
+    </div>
+</body>
+</html>

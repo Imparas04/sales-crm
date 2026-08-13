@@ -75,5 +75,56 @@ def logout_view(request):
 
 @login_required(login_url="login")
 def dashboard_view(request):
+    import json
+    from django.db.models import Sum, Count
+    from django.utils import timezone
+    from .models import Customer, Lead, Sale, FollowUp, Product, Notification
+
     profile = getattr(request.user, "profile", None)
-    return render(request, "dashboard.html", {"profile": profile})
+    unread_notifications = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    # ---- KPI cards ----
+    total_customers = Customer.objects.count()
+    total_leads = Lead.objects.count()
+    total_sales = Sale.objects.count()
+
+    today = timezone.localdate()
+    month_start = today.replace(day=1)
+    monthly_sales = Sale.objects.filter(sale_date__gte=month_start)
+    monthly_revenue = sum((s.total() for s in monthly_sales), 0) if monthly_sales.exists() else 0
+
+    won_leads = Lead.objects.filter(status="won").count()
+    conversion_rate = round((won_leads / total_leads * 100), 1) if total_leads else 0
+
+    pending_followups = FollowUp.objects.filter(status="pending").count()
+
+    # ---- Chart data ----
+    # Lead status breakdown
+    lead_status_qs = Lead.objects.values("status").annotate(count=Count("id"))
+    lead_status_labels = [row["status"] for row in lead_status_qs]
+    lead_status_counts = [row["count"] for row in lead_status_qs]
+
+    # Sales by product (top 5 by revenue, computed in Python since total() incl. discount/gst is a method not a DB field)
+    product_revenue = {}
+    for sale in Sale.objects.prefetch_related("items__product"):
+        for item in sale.items.all():
+            product_revenue[item.product.name] = product_revenue.get(item.product.name, 0) + float(item.line_total())
+    top_products = sorted(product_revenue.items(), key=lambda x: x[1], reverse=True)[:5]
+    product_labels = [p[0] for p in top_products]
+    product_values = [p[1] for p in top_products]
+
+    context = {
+        "profile": profile,
+        "unread_notifications": unread_notifications,
+        "total_customers": total_customers,
+        "total_leads": total_leads,
+        "total_sales": total_sales,
+        "monthly_revenue": monthly_revenue,
+        "conversion_rate": conversion_rate,
+        "pending_followups": pending_followups,
+        "lead_status_labels": json.dumps(lead_status_labels),
+        "lead_status_counts": json.dumps(lead_status_counts),
+        "product_labels": json.dumps(product_labels),
+        "product_values": json.dumps(product_values),
+    }
+    return render(request, "dashboard.html", context)

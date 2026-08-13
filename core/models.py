@@ -129,6 +129,15 @@ class FollowUp(models.Model):
         target = self.customer or self.lead
         return f"{self.type} with {target} on {self.date}"
 
+    @property
+    def contact_name(self):
+        """Safe accessor for templates: avoids errors when only one of customer/lead is set."""
+        if self.customer:
+            return self.customer.name
+        if self.lead:
+            return self.lead.name
+        return "-"
+
 
 # ----------------------------------------------------------------------
 # 5. PRODUCT

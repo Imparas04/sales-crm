@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Create Sale - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>Convert Quotation to Sale</h2>
+        <p>Create a sale from Quotation #{{ quotation.id }} ({{ quotation.customer.name }}, ₹{{ quotation.total }})?</p>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn">Yes, Create Sale</button></form>
+        <a href="{% url 'quotation_detail' quotation.pk %}">Cancel</a>
+    </div>
+</body>
+</html>

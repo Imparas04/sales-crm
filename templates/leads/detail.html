@@ -111,6 +111,8 @@
         <div class="detail-card__actions">
           <a href="{% url 'lead_edit' lead.pk %}" class="btn-add">Edit</a>
           <a href="{% url 'lead_convert' lead.pk %}" class="btn-secondary">Convert to customer</a>
+          <a href="{% url 'ai_score_lead' lead.pk %}" class="btn-secondary">AI Score</a>
+          <a href="{% url 'ai_followup_lead' lead.pk %}" class="btn-secondary">AI Follow-up</a>
           <a href="{% url 'lead_delete' lead.pk %}" class="btn-danger-outline">Delete</a>
         </div>
       </div>

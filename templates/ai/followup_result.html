@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>AI Follow-up Message - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>AI Follow-up Message Generator</h2>
+        <p>For: <b>{{ lead.name }}</b></p>
+        {% if error %}<p class="msg">{{ error }}</p>{% endif %}
+        {% if message %}
+            <div class="card" style="text-align:left; white-space: pre-line;">{{ message }}</div>
+        {% else %}
+            <form method="post">{% csrf_token %}<button type="submit" class="btn">Generate Follow-up Message</button></form>
+        {% endif %}
+        <a href="{% url 'lead_detail' lead.pk %}">&larr; Back to Lead</a>
+    </div>
+</body>
+</html>

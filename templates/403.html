@@ -1,0 +1,13 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Access Denied - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box" style="text-align:center;">
+        <h2>403 - Access Denied</h2>
+        <p>You don't have permission to view this page. This area is restricted to specific roles.</p>
+        <a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
+    </div>
+</body>
+</html>

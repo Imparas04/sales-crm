@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>All Follow-ups - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <div class="page-header">
+            <h2>All Follow-ups</h2>
+            <a href="{% url 'followup_add' %}" class="btn">+ Schedule Follow-up</a>
+        </div>
+        <form method="get" class="filter-bar">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
+                <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>Completed</option>
+            </select>
+            <select name="type">
+                <option value="">All Types</option>
+                <option value="call" {% if type_filter == "call" %}selected{% endif %}>Call</option>
+                <option value="email" {% if type_filter == "email" %}selected{% endif %}>Email</option>
+                <option value="meeting" {% if type_filter == "meeting" %}selected{% endif %}>Meeting</option>
+                <option value="whatsapp" {% if type_filter == "whatsapp" %}selected{% endif %}>WhatsApp</option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+        <table>
+            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Status</th><th>Actions</th></tr>
+            {% for f in followups %}
+            <tr>
+                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
+                <td>{{ f.contact_name }}</td><td>{{ f.status }}</td>
+                <td><a href="{% url 'followup_edit' f.pk %}">Edit</a> | <a href="{% url 'followup_delete' f.pk %}">Delete</a></td>
+            </tr>
+            {% empty %}<tr><td colspan="6">No follow-ups found.</td></tr>{% endfor %}
+        </table>
+        <a href="{% url 'followup_dashboard' %}">&larr; Back to Follow-up Dashboard</a>
+    </div>
+</body>
+</html>

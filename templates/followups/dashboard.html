@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Follow-ups - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <div class="page-header">
+            <h2>Follow-up Dashboard</h2>
+            <a href="{% url 'followup_add' %}" class="btn">+ Schedule Follow-up</a>
+        </div>
+        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
+
+        <h3>Today's Follow-ups ({{ todays|length }})</h3>
+        <table>
+            <tr><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Notes</th><th>Actions</th></tr>
+            {% for f in todays %}
+            <tr>
+                <td>{{ f.time }}</td><td>{{ f.type }}</td>
+                <td>{{ f.contact_name }}</td><td>{{ f.notes|truncatechars:40 }}</td>
+                <td><a href="{% url 'followup_complete' f.pk %}">Mark Complete</a> | <a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
+            </tr>
+            {% empty %}<tr><td colspan="5">Nothing scheduled today.</td></tr>{% endfor %}
+        </table>
+
+        <h3>Overdue ({{ overdue|length }})</h3>
+        <table>
+            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Actions</th></tr>
+            {% for f in overdue %}
+            <tr>
+                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
+                <td>{{ f.contact_name }}</td>
+                <td><a href="{% url 'followup_complete' f.pk %}">Mark Complete</a> | <a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
+            </tr>
+            {% empty %}<tr><td colspan="5">No overdue follow-ups.</td></tr>{% endfor %}
+        </table>
+
+        <h3>Upcoming ({{ upcoming|length }})</h3>
+        <table>
+            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Actions</th></tr>
+            {% for f in upcoming %}
+            <tr>
+                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
+                <td>{{ f.contact_name }}</td>
+                <td><a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
+            </tr>
+            {% empty %}<tr><td colspan="5">No upcoming follow-ups.</td></tr>{% endfor %}
+        </table>
+
+        <h3>Recently Completed</h3>
+        <table>
+            <tr><th>Date</th><th>Type</th><th>Customer/Lead</th></tr>
+            {% for f in completed %}
+            <tr><td>{{ f.date }}</td><td>{{ f.type }}</td><td>{{ f.contact_name }}</td></tr>
+            {% empty %}<tr><td colspan="3">None yet.</td></tr>{% endfor %}
+        </table>
+
+        <p><a href="{% url 'followup_list' %}">View All Follow-ups</a> | <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a></p>
+    </div>
+</body>
+</html>
