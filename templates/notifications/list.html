@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Notifications - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <div class="page-header">
+            <h2>Notifications</h2>
+            <a href="{% url 'notification_mark_all_read' %}" class="btn">Mark All Read</a>
+        </div>
+        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
+        <table>
+            <tr><th>Message</th><th>When</th><th>Status</th><th>Action</th></tr>
+            {% for n in notifications %}
+            <tr {% if not n.is_read %}style="font-weight: bold; background: #eff6ff;"{% endif %}>
+                <td>{{ n.message }}</td>
+                <td>{{ n.created_at|timesince }} ago</td>
+                <td>{% if n.is_read %}Read{% else %}Unread{% endif %}</td>
+                <td>{% if not n.is_read %}<a href="{% url 'notification_mark_read' n.pk %}">Mark Read</a>{% endif %}</td>
+            </tr>
+            {% empty %}<tr><td colspan="4">No notifications yet.</td></tr>{% endfor %}
+        </table>
+        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
+    </div>
+</body>
+</html>

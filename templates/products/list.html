@@ -10,7 +10,9 @@
     <div class="page-box">
         <div class="page-header">
             <h2>Products</h2>
+            {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
             <a href="{% url 'product_add' %}" class="btn">+ Add Product</a>
+            {% endif %}
         </div>
         {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
         <form method="get" class="filter-bar">
@@ -28,7 +30,13 @@
             <tr>
                 <td>{{ p.name }}</td><td>{{ p.category }}</td><td>₹{{ p.price }}</td>
                 <td>{{ p.stock }}</td><td>{{ p.status }}</td>
-                <td><a href="{% url 'product_edit' p.pk %}">Edit</a> | <a href="{% url 'product_delete' p.pk %}">Delete</a></td>
+                <td>
+                    {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
+                    <a href="{% url 'product_edit' p.pk %}">Edit</a> | <a href="{% url 'product_delete' p.pk %}">Delete</a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
             </tr>
             {% empty %}<tr><td colspan="6">No products found.</td></tr>{% endfor %}
         </table>

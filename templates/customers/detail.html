@@ -18,6 +18,7 @@
         <p><b>Status:</b> {{ customer.status }}</p>
         <p><b>Assigned to:</b> {{ customer.assigned_employee.username|default:"-" }}</p>
         <a href="{% url 'customer_edit' customer.pk %}">Edit</a> |
+        <a href="{% url 'ai_customer_summary' customer.pk %}">AI Customer Summary</a> |
         <a href="{% url 'customer_list' %}">&larr; Back to Customers</a>
     </div>
 </body>

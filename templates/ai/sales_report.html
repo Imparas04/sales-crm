@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>AI Sales Report - SalesAI CRM</title>
+<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<body>
+    <div class="page-box">
+        <h2>AI Sales Report</h2>
+        {% if error %}<p class="msg">{{ error }}</p>{% endif %}
+        {% if report %}
+            <div class="card" style="text-align:left; white-space: pre-line;">{{ report }}</div>
+        {% else %}
+            <form method="post">{% csrf_token %}<button type="submit" class="btn">Generate AI Report</button></form>
+        {% endif %}
+        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
+    </div>
+</body>
+</html>

@@ -3,14 +3,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SalesAI CRM - Dashboard</title>
+    <title>Dashboard - SalesAI CRM</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
 </head>
 <body>
-    <div class="dashboard-box">
-        <h2>Welcome, {{ request.user.username }}</h2>
+    <div class="page-box" style="max-width: 1000px;">
+        <div class="page-header">
+            <h2>Welcome, {{ request.user.username }}</h2>
+            <div>
+                <a href="{% url 'notification_list' %}">🔔 Notifications {% if unread_notifications %}({{ unread_notifications }}){% endif %}</a>
+                &nbsp;|&nbsp;
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
         <p>Role: {{ profile.role }}</p>
-        <p>Day 22-23 par asli KPI cards + charts aayenge</p>
+
         <p>
             <a href="{% url 'customer_list' %}">Customers</a> |
             <a href="{% url 'lead_list' %}">Leads</a> |
@@ -18,8 +26,55 @@
             <a href="{% url 'followup_dashboard' %}">Follow-ups</a> |
             <a href="{% url 'quotation_list' %}">Quotations</a> |
             <a href="{% url 'sale_list' %}">Sales</a>
+            {% if profile.role == "admin" or profile.role == "manager" %}
+            | <a href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+            {% endif %}
         </p>
-        <a href="{% url 'logout' %}">Logout</a>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="card"><h3>Total Customers</h3><h2>{{ total_customers }}</h2></div>
+            <div class="card"><h3>Total Leads</h3><h2>{{ total_leads }}</h2></div>
+            <div class="card"><h3>Total Sales</h3><h2>{{ total_sales }}</h2></div>
+            <div class="card"><h3>Monthly Revenue</h3><h2>₹{{ monthly_revenue }}</h2></div>
+            <div class="card"><h3>Conversion Rate</h3><h2>{{ conversion_rate }}%</h2></div>
+            <div class="card"><h3>Pending Follow-ups</h3><h2>{{ pending_followups }}</h2></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-grid">
+            <div>
+                <h3>Lead Status</h3>
+                <canvas id="leadStatusChart"></canvas>
+            </div>
+            <div>
+                <h3>Top Products by Revenue</h3>
+                <canvas id="productChart"></canvas>
+            </div>
+        </div>
     </div>
+
+    <script>
+        const leadStatusLabels = {{ lead_status_labels|safe }};
+        const leadStatusCounts = {{ lead_status_counts|safe }};
+        new Chart(document.getElementById('leadStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: leadStatusLabels,
+                datasets: [{ data: leadStatusCounts, backgroundColor: ['#2563eb','#16a34a','#f59e0b','#dc2626','#8b5cf6','#06b6d4','#64748b'] }]
+            }
+        });
+
+        const productLabels = {{ product_labels|safe }};
+        const productValues = {{ product_values|safe }};
+        new Chart(document.getElementById('productChart'), {
+            type: 'bar',
+            data: {
+                labels: productLabels,
+                datasets: [{ label: 'Revenue (₹)', data: productValues, backgroundColor: '#2563eb' }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
 </body>
 </html>

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 
 from .models import Product
+from .decorators import role_required
 from .forms import ProductForm
 
 
@@ -29,6 +30,7 @@ def product_list(request):
 
 
 @login_required(login_url="login")
+@role_required("admin", "manager")
 def product_add(request):
     if request.method == "POST":
         form = ProductForm(request.POST)
@@ -42,6 +44,7 @@ def product_add(request):
 
 
 @login_required(login_url="login")
+@role_required("admin", "manager")
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == "POST":
@@ -56,6 +59,7 @@ def product_edit(request, pk):
 
 
 @login_required(login_url="login")
+@role_required("admin", "manager")
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == "POST":
