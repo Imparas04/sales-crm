@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -16,27 +17,27 @@
       <div>
         <div class="app-sidebar__brand">SalesAI CRM</div>
         <nav class="app-nav">
-          <a class="app-nav__link app-nav__link--active" href="{% url 'dashboard' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
-            Dashboard
+          <a class="app-nav__link app-nav__link--active" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}" style="display:flex; align-items:center;">
+            Notifications
+            {% if unread_notifications %}<span class="nav-badge">{{ unread_notifications }}</span>{% endif %}
           </a>
-          <a class="app-nav__link" href="{% url 'customer_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-            Customers
-          </a>
-          <a class="app-nav__link" href="{% url 'lead_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
-            Leads
-          </a>
+          {% if profile.role == 'admin' or profile.role == 'manager' %}
+            <a class="app-nav__link" href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+          {% endif %}
         </nav>
       </div>
 
       <div class="app-sidebar__foot">
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
-          <button type="submit" class="app-sidebar__logout">
-            Log out
-          </button>
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
       </div>
     </aside>
@@ -45,40 +46,115 @@
       <div class="app-header">
         <div>
           <h1>Welcome back, {{ request.user.username }}</h1>
-          <p class="app-header__sub">Here's a quick way into your pipeline.</p>
+          <p class="app-header__sub">Here's how your pipeline looks today.</p>
         </div>
-        {% if profile.role %}
-          <span class="role-badge">{{ profile.role }}</span>
-        {% endif %}
+        {% if profile.role %}<span class="role-badge">{{ profile.role }}</span>{% endif %}
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <p class="kpi-card__label">Customers</p>
+          <p class="kpi-card__value">{{ total_customers }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__label">Leads</p>
+          <p class="kpi-card__value">{{ total_leads }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__label">Sales</p>
+          <p class="kpi-card__value">{{ total_sales }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__label">Revenue this month</p>
+          <p class="kpi-card__value">₹{{ monthly_revenue|floatformat:0 }}</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__label">Conversion rate</p>
+          <p class="kpi-card__value">{{ conversion_rate }}%</p>
+        </div>
+        <div class="kpi-card">
+          <p class="kpi-card__label">Pending follow-ups</p>
+          <p class="kpi-card__value">{{ pending_followups }}</p>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <p class="chart-card__title">Leads by status</p>
+          <canvas id="leadStatusChart" height="200"></canvas>
+        </div>
+        <div class="chart-card">
+          <p class="chart-card__title">Top products by revenue</p>
+          <canvas id="productRevenueChart" height="200"></canvas>
+        </div>
       </div>
 
       <div class="quick-actions">
-        <a class="quick-card" href="{% url 'customer_list' %}">
-          <p class="quick-card__eyebrow">Customers</p>
-          <h3>View customers</h3>
-          <p>Browse, search, and manage your customer records.</p>
-        </a>
-
-        <a class="quick-card" href="{% url 'customer_add' %}">
-          <p class="quick-card__eyebrow">Customers</p>
-          <h3>Add a customer</h3>
-          <p>Create a new customer record.</p>
-        </a>
-
-        <a class="quick-card" href="{% url 'lead_list' %}">
-          <p class="quick-card__eyebrow">Leads</p>
-          <h3>View leads</h3>
-          <p>Track leads through your pipeline stages.</p>
-        </a>
-
         <a class="quick-card" href="{% url 'lead_add' %}">
           <p class="quick-card__eyebrow">Leads</p>
           <h3>Add a lead</h3>
           <p>Log a new lead to start working it.</p>
         </a>
+        <a class="quick-card" href="{% url 'quotation_add' %}">
+          <p class="quick-card__eyebrow">Quotations</p>
+          <h3>New quotation</h3>
+          <p>Put together a quote for a customer.</p>
+        </a>
+        <a class="quick-card" href="{% url 'followup_dashboard' %}">
+          <p class="quick-card__eyebrow">Follow-ups</p>
+          <h3>View follow-ups</h3>
+          <p>See what's due today, upcoming, and overdue.</p>
+        </a>
       </div>
     </main>
 
   </div>
+
+  <script>
+    var brass = getComputedStyle(document.documentElement).getPropertyValue('--color-brass').trim();
+    var forest = getComputedStyle(document.documentElement).getPropertyValue('--color-forest').trim();
+    var ink = getComputedStyle(document.documentElement).getPropertyValue('--color-ink-soft').trim();
+    var muted = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim();
+
+    new Chart(document.getElementById('leadStatusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: {{ lead_status_labels|safe }},
+        datasets: [{
+          data: {{ lead_status_counts|safe }},
+          backgroundColor: [brass, forest, ink, '#B3432B', '#9AA4C4'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom', labels: { color: muted, font: { family: 'Inter', size: 12 } } } }
+      }
+    });
+
+    new Chart(document.getElementById('productRevenueChart'), {
+      type: 'bar',
+      data: {
+        labels: {{ product_labels|safe }},
+        datasets: [{
+          data: {{ product_values|safe }},
+          backgroundColor: brass,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: muted, font: { family: 'Inter', size: 11 } }, grid: { display: false } },
+          y: { ticks: { color: muted, font: { family: 'Inter', size: 11 } }, grid: { color: '#DADCE2' } }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
