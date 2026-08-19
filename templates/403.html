@@ -1,13 +1,24 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Access Denied - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
-<body>
-    <div class="page-box" style="text-align:center;">
-        <h2>403 - Access Denied</h2>
-        <p>You don't have permission to view this page. This area is restricted to specific roles.</p>
-        <a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Denied · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body style="background: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;">
+
+  <div style="max-width: 440px; text-align: center;">
+    <p style="font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-brass); margin: 0 0 16px;">Error 403</p>
+    <h1 style="font-family: var(--font-display); font-size: 34px; font-weight: 600; color: var(--color-text-on-ink); margin: 0 0 14px;">Access denied</h1>
+    <p style="color: var(--color-text-muted-on-ink); font-size: 15px; line-height: 1.6; margin: 0 0 32px;">
+      You don't have permission to view this page. This area is restricted to specific roles.
+    </p>
+    <a href="{% url 'dashboard' %}" class="btn-add" style="display: inline-flex;">Back to dashboard</a>
+  </div>
+
 </body>
 </html>
