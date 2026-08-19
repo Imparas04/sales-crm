@@ -83,7 +83,9 @@
           </select>
           <button type="submit" class="btn-secondary">Filter</button>
         </form>
-        <a href="{% url 'product_add' %}" class="btn-add">+ Add product</a>
+        {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
+          <a href="{% url 'product_add' %}" class="btn-add">+ Add product</a>
+        {% endif %}
       </div>
 
       <div class="table-card">
@@ -108,10 +110,12 @@
                   <td class="cell-muted">{{ p.stock }}</td>
                   <td><span class="status-pill status-pill--{{ p.status }}">{{ p.status }}</span></td>
                   <td>
-                    <div class="table-actions">
-                      <a href="{% url 'product_edit' p.pk %}">Edit</a>
-                      <a href="{% url 'product_delete' p.pk %}" class="action-danger">Delete</a>
-                    </div>
+                    {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
+                      <div class="table-actions">
+                        <a href="{% url 'product_edit' p.pk %}">Edit</a>
+                        <a href="{% url 'product_delete' p.pk %}" class="action-danger">Delete</a>
+                      </div>
+                    {% endif %}
                   </td>
                 </tr>
               {% endfor %}
