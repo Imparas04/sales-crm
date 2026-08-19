@@ -1147,3 +1147,74 @@ html, body {
   margin-top: 6px;
   padding-top: 10px;
 }
+
+/* ==========================================================================
+   Follow-up dashboard columns
+   ========================================================================== */
+
+.kanban-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kanban-col__title {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban-col__count {
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.kanban-card {
+  background: var(--color-paper-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.kanban-card--overdue { border-color: rgba(179, 67, 43, 0.35); }
+
+.kanban-card__title {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0 0 4px;
+}
+
+.kanban-card__meta {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  margin: 0 0 10px;
+}
+
+.kanban-card__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.kanban-card__actions a {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-brass-hover);
+  text-decoration: none;
+}
+
+@media (max-width: 960px) {
+  .kanban-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .kanban-grid { grid-template-columns: 1fr; }
+}

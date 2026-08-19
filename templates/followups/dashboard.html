@@ -1,61 +1,119 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Follow-ups - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Follow-ups · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>Follow-up Dashboard</h2>
-            <a href="{% url 'followup_add' %}" class="btn">+ Schedule Follow-up</a>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Follow-ups</h1>
+          <p class="app-header__sub">Today, upcoming, overdue, and completed — all in one view.</p>
         </div>
-        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
+        <div style="display:flex; gap:10px;">
+          <a href="{% url 'followup_list' %}" class="btn-secondary">View all</a>
+          <a href="{% url 'followup_add' %}" class="btn-add">+ Schedule follow-up</a>
+        </div>
+      </div>
 
-        <h3>Today's Follow-ups ({{ todays|length }})</h3>
-        <table>
-            <tr><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Notes</th><th>Actions</th></tr>
-            {% for f in todays %}
-            <tr>
-                <td>{{ f.time }}</td><td>{{ f.type }}</td>
-                <td>{{ f.contact_name }}</td><td>{{ f.notes|truncatechars:40 }}</td>
-                <td><a href="{% url 'followup_complete' f.pk %}">Mark Complete</a> | <a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
-            </tr>
-            {% empty %}<tr><td colspan="5">Nothing scheduled today.</td></tr>{% endfor %}
-        </table>
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
 
-        <h3>Overdue ({{ overdue|length }})</h3>
-        <table>
-            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Actions</th></tr>
-            {% for f in overdue %}
-            <tr>
-                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
-                <td>{{ f.contact_name }}</td>
-                <td><a href="{% url 'followup_complete' f.pk %}">Mark Complete</a> | <a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
-            </tr>
-            {% empty %}<tr><td colspan="5">No overdue follow-ups.</td></tr>{% endfor %}
-        </table>
+      <div class="kanban-grid">
+        <div class="kanban-col">
+          <p class="kanban-col__title">Today <span class="kanban-col__count">{{ todays|length }}</span></p>
+          {% for f in todays %}
+            <div class="kanban-card">
+              <p class="kanban-card__title">{{ f.contact_name }}</p>
+              <p class="kanban-card__meta">{{ f.type }} · {{ f.time }}</p>
+              <div class="kanban-card__actions">
+                <a href="{% url 'followup_complete' f.pk %}">Mark complete</a>
+                <a href="{% url 'followup_edit' f.pk %}">Edit</a>
+              </div>
+            </div>
+          {% empty %}
+            <p class="cell-muted" style="font-size:13px;">Nothing today.</p>
+          {% endfor %}
+        </div>
 
-        <h3>Upcoming ({{ upcoming|length }})</h3>
-        <table>
-            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Actions</th></tr>
-            {% for f in upcoming %}
-            <tr>
-                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
-                <td>{{ f.contact_name }}</td>
-                <td><a href="{% url 'followup_edit' f.pk %}">Edit</a></td>
-            </tr>
-            {% empty %}<tr><td colspan="5">No upcoming follow-ups.</td></tr>{% endfor %}
-        </table>
+        <div class="kanban-col">
+          <p class="kanban-col__title">Upcoming <span class="kanban-col__count">{{ upcoming|length }}</span></p>
+          {% for f in upcoming %}
+            <div class="kanban-card">
+              <p class="kanban-card__title">{{ f.contact_name }}</p>
+              <p class="kanban-card__meta">{{ f.type }} · {{ f.date }} {{ f.time }}</p>
+              <div class="kanban-card__actions">
+                <a href="{% url 'followup_edit' f.pk %}">Edit</a>
+              </div>
+            </div>
+          {% empty %}
+            <p class="cell-muted" style="font-size:13px;">Nothing upcoming.</p>
+          {% endfor %}
+        </div>
 
-        <h3>Recently Completed</h3>
-        <table>
-            <tr><th>Date</th><th>Type</th><th>Customer/Lead</th></tr>
-            {% for f in completed %}
-            <tr><td>{{ f.date }}</td><td>{{ f.type }}</td><td>{{ f.contact_name }}</td></tr>
-            {% empty %}<tr><td colspan="3">None yet.</td></tr>{% endfor %}
-        </table>
+        <div class="kanban-col">
+          <p class="kanban-col__title">Overdue <span class="kanban-col__count">{{ overdue|length }}</span></p>
+          {% for f in overdue %}
+            <div class="kanban-card kanban-card--overdue">
+              <p class="kanban-card__title">{{ f.contact_name }}</p>
+              <p class="kanban-card__meta">{{ f.type }} · {{ f.date }} {{ f.time }}</p>
+              <div class="kanban-card__actions">
+                <a href="{% url 'followup_complete' f.pk %}">Mark complete</a>
+                <a href="{% url 'followup_edit' f.pk %}">Edit</a>
+              </div>
+            </div>
+          {% empty %}
+            <p class="cell-muted" style="font-size:13px;">Nothing overdue.</p>
+          {% endfor %}
+        </div>
 
-        <p><a href="{% url 'followup_list' %}">View All Follow-ups</a> | <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a></p>
-    </div>
+        <div class="kanban-col">
+          <p class="kanban-col__title">Completed <span class="kanban-col__count">{{ completed|length }}</span></p>
+          {% for f in completed %}
+            <div class="kanban-card">
+              <p class="kanban-card__title">{{ f.contact_name }}</p>
+              <p class="kanban-card__meta">{{ f.type }} · {{ f.date }}</p>
+            </div>
+          {% empty %}
+            <p class="cell-muted" style="font-size:13px;">No completed follow-ups yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

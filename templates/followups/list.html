@@ -1,40 +1,108 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>All Follow-ups - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Follow-ups · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>All Follow-ups</h2>
-            <a href="{% url 'followup_add' %}" class="btn">+ Schedule Follow-up</a>
-        </div>
-        <form method="get" class="filter-bar">
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
-                <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>Completed</option>
-            </select>
-            <select name="type">
-                <option value="">All Types</option>
-                <option value="call" {% if type_filter == "call" %}selected{% endif %}>Call</option>
-                <option value="email" {% if type_filter == "email" %}selected{% endif %}>Email</option>
-                <option value="meeting" {% if type_filter == "meeting" %}selected{% endif %}>Meeting</option>
-                <option value="whatsapp" {% if type_filter == "whatsapp" %}selected{% endif %}>WhatsApp</option>
-            </select>
-            <button type="submit">Filter</button>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
-        <table>
-            <tr><th>Date</th><th>Time</th><th>Type</th><th>Customer/Lead</th><th>Status</th><th>Actions</th></tr>
-            {% for f in followups %}
-            <tr>
-                <td>{{ f.date }}</td><td>{{ f.time }}</td><td>{{ f.type }}</td>
-                <td>{{ f.contact_name }}</td><td>{{ f.status }}</td>
-                <td><a href="{% url 'followup_edit' f.pk %}">Edit</a> | <a href="{% url 'followup_delete' f.pk %}">Delete</a></td>
-            </tr>
-            {% empty %}<tr><td colspan="6">No follow-ups found.</td></tr>{% endfor %}
-        </table>
-        <a href="{% url 'followup_dashboard' %}">&larr; Back to Follow-up Dashboard</a>
-    </div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>All follow-ups</h1>
+          <p class="app-header__sub"><a href="{% url 'followup_dashboard' %}" style="color:inherit;">&larr; Back to dashboard view</a></p>
+        </div>
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="toolbar">
+        <form class="filter-form" method="get" action="{% url 'followup_list' %}">
+          <select name="status">
+            <option value="" {% if not status_filter %}selected{% endif %}>All statuses</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+            <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+          </select>
+          <select name="type">
+            <option value="" {% if not type_filter %}selected{% endif %}>All types</option>
+            <option value="call" {% if type_filter == 'call' %}selected{% endif %}>Call</option>
+            <option value="email" {% if type_filter == 'email' %}selected{% endif %}>Email</option>
+            <option value="meeting" {% if type_filter == 'meeting' %}selected{% endif %}>Meeting</option>
+            <option value="whatsapp" {% if type_filter == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+          </select>
+          <button type="submit" class="btn-secondary">Filter</button>
+        </form>
+        <a href="{% url 'followup_add' %}" class="btn-add">+ Schedule follow-up</a>
+      </div>
+
+      <div class="table-card">
+        {% if followups %}
+          <table class="data-table">
+            <thead>
+              <tr><th>Contact</th><th>Type</th><th>Date</th><th>Time</th><th>Status</th><th>Assigned</th><th></th></tr>
+            </thead>
+            <tbody>
+              {% for f in followups %}
+                <tr>
+                  <td class="cell-primary">{{ f.contact_name }}</td>
+                  <td class="cell-muted">{{ f.type }}</td>
+                  <td class="cell-muted">{{ f.date }}</td>
+                  <td class="cell-muted">{{ f.time }}</td>
+                  <td><span class="status-pill {% if f.status == 'completed' %}status-pill--active{% else %}status-pill--inactive{% endif %}">{{ f.status }}</span></td>
+                  <td class="cell-muted">{{ f.assigned_employee.username|default:"—" }}</td>
+                  <td>
+                    <div class="table-actions">
+                      {% if f.status == 'pending' %}<a href="{% url 'followup_complete' f.pk %}">Complete</a>{% endif %}
+                      <a href="{% url 'followup_edit' f.pk %}">Edit</a>
+                      <a href="{% url 'followup_delete' f.pk %}" class="action-danger">Delete</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <h3>No follow-ups found</h3>
+            <p>Try a different filter, or schedule a new follow-up.</p>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

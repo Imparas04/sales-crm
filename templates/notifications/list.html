@@ -1,27 +1,88 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Notifications - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>Notifications</h2>
-            <a href="{% url 'notification_mark_all_read' %}" class="btn">Mark All Read</a>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Notifications</h1>
+          <p class="app-header__sub">Updates about your leads, sales, and follow-ups.</p>
         </div>
-        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
-        <table>
-            <tr><th>Message</th><th>When</th><th>Status</th><th>Action</th></tr>
-            {% for n in notifications %}
-            <tr {% if not n.is_read %}style="font-weight: bold; background: #eff6ff;"{% endif %}>
-                <td>{{ n.message }}</td>
-                <td>{{ n.created_at|timesince }} ago</td>
-                <td>{% if n.is_read %}Read{% else %}Unread{% endif %}</td>
-                <td>{% if not n.is_read %}<a href="{% url 'notification_mark_read' n.pk %}">Mark Read</a>{% endif %}</td>
-            </tr>
-            {% empty %}<tr><td colspan="4">No notifications yet.</td></tr>{% endfor %}
-        </table>
-        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
-    </div>
+        {% if notifications %}
+          <form method="post" action="{% url 'notification_mark_all_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-secondary">Mark all as read</button>
+          </form>
+        {% endif %}
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="table-card">
+        {% if notifications %}
+          <table class="data-table">
+            <thead><tr><th>Message</th><th>Received</th><th></th></tr></thead>
+            <tbody>
+              {% for n in notifications %}
+                <tr style="{% if not n.is_read %}font-weight:600;{% endif %}">
+                  <td class="{% if n.is_read %}cell-muted{% endif %}">{{ n.message }}</td>
+                  <td class="cell-muted">{{ n.created_at }}</td>
+                  <td>
+                    {% if not n.is_read %}
+                      <div class="table-actions">
+                        <a href="{% url 'notification_mark_read' n.pk %}">Mark read</a>
+                      </div>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <h3>No notifications</h3>
+            <p>You're all caught up.</p>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

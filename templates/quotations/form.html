@@ -1,31 +1,152 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>{{ title }} - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <h2>{{ title }}</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <h3>Items</h3>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div><h1>{{ title }}</h1></div>
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="form-page-card" style="max-width: 900px;">
+        {% if form.non_field_errors %}
+          <div class="form-alert">{% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}</div>
+        {% endif %}
+        {% if formset.non_form_errors %}
+          <div class="form-alert">{% for error in formset.non_form_errors %}<div>{{ error }}</div>{% endfor %}</div>
+        {% endif %}
+
+        <form method="post" id="quotation-form" novalidate>
+          {% csrf_token %}
+
+          <div class="form-grid">
+            <div class="field field--full">
+              <label for="{{ form.customer.id_for_label }}">Customer</label>
+              {{ form.customer }}
+              {% if form.customer.errors %}<p class="field-error">{{ form.customer.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="field">
+              <label for="{{ form.discount.id_for_label }}">Discount (%)</label>
+              {{ form.discount }}
+            </div>
+            <div class="field">
+              <label for="{{ form.gst.id_for_label }}">GST (%)</label>
+              {{ form.gst }}
+            </div>
+            <div class="field field--full">
+              <label for="{{ form.status.id_for_label }}">Status</label>
+              {{ form.status }}
+            </div>
+          </div>
+
+          <div class="item-formset">
+            <p class="item-formset__label">Line items</p>
             {{ formset.management_form }}
-            <table>
-                <tr><th>Product</th><th>Quantity</th><th>Price</th><th>Delete</th></tr>
-                {% for item_form in formset %}
+            <table class="item-formset-table" id="formset-table">
+              <thead>
                 <tr>
+                  <th>Product</th>
+                  <th style="width:90px;">Qty</th>
+                  <th style="width:120px;">Price</th>
+                  <th style="width:40px;"></th>
+                </tr>
+              </thead>
+              <tbody id="formset-body">
+                {% for item_form in formset %}
+                  <tr class="item-formset-row">
+                    {% if item_form.DELETE %}<span style="display:none;">{{ item_form.DELETE }}</span>{% endif %}
                     <td>{{ item_form.product }}</td>
                     <td>{{ item_form.quantity }}</td>
                     <td>{{ item_form.price }}</td>
-                    <td>{% if item_form.instance.pk %}{{ item_form.DELETE }}{% endif %}</td>
-                    {{ item_form.id }}
-                </tr>
+                    <td>
+                      {% if item_form.instance.pk %}
+                        <label style="font-size:11px; color:var(--color-error); cursor:pointer;">
+                          {{ item_form.DELETE }} Remove
+                        </label>
+                      {% else %}
+                        <button type="button" class="btn-remove-row" onclick="this.closest('tr').remove()">✕</button>
+                      {% endif %}
+                    </td>
+                  </tr>
                 {% endfor %}
+              </tbody>
             </table>
-            <button type="submit" class="btn">Save Quotation</button>
+            <button type="button" class="btn-add-row" id="add-row-btn">+ Add line item</button>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-add">Save quotation</button>
+            <a href="{% url 'quotation_list' %}" class="btn-secondary">Cancel</a>
+          </div>
         </form>
-        <a href="{% url 'quotation_list' %}">&larr; Back to Quotations</a>
-    </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    // Adds a new empty formset row by cloning the last row and rewriting
+    // its field name/id indices, then bumps TOTAL_FORMS. Standard pattern
+    // for Django formsets rendered without a dedicated empty_form template.
+    document.getElementById('add-row-btn').addEventListener('click', function () {
+      var totalForms = document.getElementById('id_items-TOTAL_FORMS');
+      var formIndex = parseInt(totalForms.value, 10);
+      var body = document.getElementById('formset-body');
+      var lastRow = body.querySelector('.item-formset-row:last-child');
+      if (!lastRow) return;
+
+      var newRow = lastRow.cloneNode(true);
+      newRow.querySelectorAll('input, select').forEach(function (el) {
+        var name = el.getAttribute('name');
+        var id = el.getAttribute('id');
+        if (name) el.setAttribute('name', name.replace(/items-(\d+)-/, 'items-' + formIndex + '-'));
+        if (id) el.setAttribute('id', id.replace(/items-(\d+)-/, 'items-' + formIndex + '-'));
+        if (el.type === 'checkbox') { el.checked = false; } else { el.value = ''; }
+      });
+      // Ensure the new row always gets the simple remove button, not a DELETE checkbox
+      var lastCell = newRow.querySelector('td:last-child');
+      lastCell.innerHTML = '<button type="button" class="btn-remove-row" onclick="this.closest(\'tr\').remove()">✕</button>';
+
+      body.appendChild(newRow);
+      totalForms.value = formIndex + 1;
+    });
+  </script>
 </body>
 </html>

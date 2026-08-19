@@ -1,27 +1,107 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Quotation #{{ quotation.id }} - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotation #{{ quotation.id }} · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <h2>Quotation #{{ quotation.id }}</h2>
-        <p><b>Customer:</b> {{ quotation.customer.name }}</p>
-        <p><b>Date:</b> {{ quotation.quotation_date }}</p>
-        <p><b>Status:</b> {{ quotation.status }}</p>
-        <table>
-            <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr>
-            {% for item in quotation.items.all %}
-            <tr><td>{{ item.product.name }}</td><td>{{ item.quantity }}</td><td>₹{{ item.price }}</td><td>₹{{ item.line_total }}</td></tr>
-            {% endfor %}
-        </table>
-        <p><b>Subtotal:</b> ₹{{ quotation.subtotal }}</p>
-        <p><b>Discount:</b> {{ quotation.discount }}% | <b>GST:</b> {{ quotation.gst }}%</p>
-        <p><b>Total:</b> ₹{{ quotation.total }}</p>
-        <a href="{% url 'quotation_edit' quotation.pk %}">Edit</a> |
-        <a href="{% url 'quotation_pdf' quotation.pk %}">Download PDF</a> |
-        <a href="{% url 'sale_from_quotation' quotation.pk %}">Convert to Sale</a> |
-        <a href="{% url 'quotation_list' %}">&larr; Back to Quotations</a>
-    </div>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Quotation #{{ quotation.id }}</h1>
+          <p class="app-header__sub"><a href="{% url 'quotation_list' %}" style="color:inherit;">&larr; Back to quotations</a></p>
+        </div>
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="detail-card" style="max-width: 820px;">
+        <div class="detail-card__header">
+          <div>
+            <p class="detail-card__eyebrow">Customer</p>
+            <h2>{{ quotation.customer.name }}</h2>
+          </div>
+          <span class="status-pill status-pill--active">{{ quotation.status }}</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-field">
+            <label>Date</label>
+            <div class="detail-field__value">{{ quotation.quotation_date }}</div>
+          </div>
+          <div class="detail-field">
+            <label>Discount / GST</label>
+            <div class="detail-field__value">{{ quotation.discount }}% / {{ quotation.gst }}%</div>
+          </div>
+        </div>
+
+        <div style="padding: 24px 32px;">
+          <table class="item-formset-table">
+            <thead>
+              <tr><th>Product</th><th>Qty</th><th>Price</th><th>Line total</th></tr>
+            </thead>
+            <tbody>
+              {% for item in quotation.items.all %}
+                <tr>
+                  <td>{{ item.product.name }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>₹{{ item.price }}</td>
+                  <td>₹{{ item.line_total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <div class="totals-box">
+            <div class="totals-box__row"><span>Subtotal</span><span>₹{{ quotation.subtotal }}</span></div>
+            <div class="totals-box__row"><span>Discount</span><span>{{ quotation.discount }}%</span></div>
+            <div class="totals-box__row"><span>GST</span><span>{{ quotation.gst }}%</span></div>
+            <div class="totals-box__row totals-box__row--total"><span>Total</span><span>₹{{ quotation.total }}</span></div>
+          </div>
+        </div>
+
+        <div class="detail-card__actions">
+          <a href="{% url 'quotation_edit' quotation.pk %}" class="btn-add">Edit</a>
+          <a href="{% url 'quotation_pdf' quotation.pk %}" class="btn-secondary">Download PDF</a>
+          <a href="{% url 'sale_from_quotation' quotation.pk %}" class="btn-secondary">Convert to sale</a>
+          <a href="{% url 'quotation_delete' quotation.pk %}" class="btn-danger-outline">Delete</a>
+        </div>
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>

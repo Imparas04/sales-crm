@@ -1,41 +1,109 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Quotations - SalesAI CRM</title>
-<link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quotations · SalesAI CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
 <body>
-    <div class="page-box">
-        <div class="page-header">
-            <h2>Quotations</h2>
-            <a href="{% url 'quotation_add' %}" class="btn">+ New Quotation</a>
-        </div>
-        {% if messages %}{% for message in messages %}<p class="msg-success">{{ message }}</p>{% endfor %}{% endif %}
-        <form method="get" class="filter-bar">
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="draft" {% if status_filter == "draft" %}selected{% endif %}>Draft</option>
-                <option value="sent" {% if status_filter == "sent" %}selected{% endif %}>Sent</option>
-                <option value="accepted" {% if status_filter == "accepted" %}selected{% endif %}>Accepted</option>
-                <option value="rejected" {% if status_filter == "rejected" %}selected{% endif %}>Rejected</option>
-                <option value="expired" {% if status_filter == "expired" %}selected{% endif %}>Expired</option>
-            </select>
-            <button type="submit">Filter</button>
+  <div class="app-shell">
+
+    <aside class="app-sidebar">
+      <div>
+        <div class="app-sidebar__brand">SalesAI CRM</div>
+        <nav class="app-nav">
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+        </nav>
+      </div>
+      <div class="app-sidebar__foot">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="app-sidebar__logout">Log out</button>
         </form>
-        <table>
-            <tr><th>#</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th><th>Actions</th></tr>
-            {% for q in quotations %}
-            <tr>
-                <td>{{ q.id }}</td><td>{{ q.customer.name }}</td><td>{{ q.quotation_date }}</td>
-                <td>{{ q.status }}</td><td>₹{{ q.total }}</td>
-                <td>
-                    <a href="{% url 'quotation_detail' q.pk %}">View</a> |
-                    <a href="{% url 'quotation_edit' q.pk %}">Edit</a> |
-                    <a href="{% url 'quotation_pdf' q.pk %}">PDF</a>
-                </td>
-            </tr>
-            {% empty %}<tr><td colspan="6">No quotations found.</td></tr>{% endfor %}
-        </table>
-        <a href="{% url 'dashboard' %}">&larr; Back to Dashboard</a>
-    </div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div class="app-header">
+        <div>
+          <h1>Quotations</h1>
+          <p class="app-header__sub">Draft, sent, and accepted quotes for your customers.</p>
+        </div>
+      </div>
+
+      {% if messages %}
+        <ul class="messages-list">
+          {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="toolbar">
+        <form class="filter-form" method="get" action="{% url 'quotation_list' %}">
+          <select name="status">
+            <option value="" {% if not status_filter %}selected{% endif %}>All statuses</option>
+            <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Draft</option>
+            <option value="sent" {% if status_filter == 'sent' %}selected{% endif %}>Sent</option>
+            <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Accepted</option>
+            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+            <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+          </select>
+          <button type="submit" class="btn-secondary">Filter</button>
+        </form>
+        <a href="{% url 'quotation_add' %}" class="btn-add">+ New quotation</a>
+      </div>
+
+      <div class="table-card">
+        {% if quotations %}
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Quotation</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for q in quotations %}
+                <tr>
+                  <td class="cell-primary">#{{ q.id }}</td>
+                  <td class="cell-muted">{{ q.customer.name }}</td>
+                  <td class="cell-muted">{{ q.quotation_date }}</td>
+                  <td class="cell-muted">₹{{ q.total }}</td>
+                  <td><span class="status-pill status-pill--active">{{ q.status }}</span></td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="{% url 'quotation_detail' q.pk %}">View</a>
+                      <a href="{% url 'quotation_edit' q.pk %}">Edit</a>
+                      <a href="{% url 'quotation_delete' q.pk %}" class="action-danger">Delete</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <h3>No quotations yet</h3>
+            <p>Create your first quotation for a customer.</p>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
 </body>
 </html>
