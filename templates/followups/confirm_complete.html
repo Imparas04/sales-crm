@@ -24,6 +24,9 @@
           <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
           <a class="app-nav__link app-nav__link--active" href="{% url 'followup_dashboard' %}">Follow-ups</a>
           <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+          {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
+            <a class="app-nav__link" href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+          {% endif %}
         </nav>
       </div>
       <div class="app-sidebar__foot">

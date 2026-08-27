@@ -16,18 +16,17 @@
       <div>
         <div class="app-sidebar__brand">SalesAI CRM</div>
         <nav class="app-nav">
-          <a class="app-nav__link" href="{% url 'dashboard' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="1.5" width="6" height="6" rx="1"/><rect x="8.5" y="1.5" width="6" height="4" rx="1"/><rect x="8.5" y="7.5" width="6" height="7" rx="1"/><rect x="1.5" y="9.5" width="6" height="5" rx="1"/></svg>
-            Dashboard
-          </a>
-          <a class="app-nav__link" href="{% url 'customer_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-            Customers
-          </a>
-          <a class="app-nav__link app-nav__link--active" href="{% url 'lead_list' %}">
-            <svg class="app-nav__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 8h9M10.5 8l-3-3M10.5 8l-3 3"/><path d="M12 3.5v9"/></svg>
-            Leads
-          </a>
+          <a class="app-nav__link" href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="app-nav__link" href="{% url 'customer_list' %}">Customers</a>
+          <a class="app-nav__link app-nav__link--active" href="{% url 'lead_list' %}">Leads</a>
+          <a class="app-nav__link" href="{% url 'product_list' %}">Products</a>
+          <a class="app-nav__link" href="{% url 'quotation_list' %}">Quotations</a>
+          <a class="app-nav__link" href="{% url 'sale_list' %}">Sales</a>
+          <a class="app-nav__link" href="{% url 'followup_dashboard' %}">Follow-ups</a>
+          <a class="app-nav__link" href="{% url 'notification_list' %}">Notifications</a>
+          {% if request.user.profile.role == "admin" or request.user.profile.role == "manager" %}
+            <a class="app-nav__link" href="{% url 'ai_sales_report' %}">AI Sales Report</a>
+          {% endif %}
         </nav>
       </div>
 
@@ -111,6 +110,8 @@
         <div class="detail-card__actions">
           <a href="{% url 'lead_edit' lead.pk %}" class="btn-add">Edit</a>
           <a href="{% url 'lead_convert' lead.pk %}" class="btn-secondary">Convert to customer</a>
+          <a href="{% url 'ai_score_lead' lead.pk %}" class="btn-secondary">AI Score</a>
+          <a href="{% url 'ai_followup_lead' lead.pk %}" class="btn-secondary">AI Follow-up</a>
           <a href="{% url 'lead_delete' lead.pk %}" class="btn-danger-outline">Delete</a>
         </div>
       </div>
